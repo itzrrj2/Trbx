@@ -56,7 +56,7 @@ async def start_command(client, message):
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
     developer_button = InlineKeyboardButton("Another Bot", url="https://t.me/+W5rHzCMRsM1iYmM9")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-    video_file_id = "/app/Jet-Mirror.mp4"
+    video_file_id = "/app/1734351426786003.mov"
     if os.path.exists(video_file_id):
         await client.send_video(
             chat_id=message.chat.id,
