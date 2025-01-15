@@ -54,7 +54,7 @@ async def start_command(client, message):
     user_mention = message.from_user.mention
     reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
-    developer_button = InlineKeyboardButton("Another Bot", url="https://t.me/+W5rHzCMRsM1iYmM9")
+    developer_button = InlineKeyboardButton("Another Bot", url="https://t.me/teraBoXyerBot")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
     video_file_id = "/app/1734351426786003.mov"
     if os.path.exists(video_file_id):
@@ -92,7 +92,7 @@ async def handle_message(client, message: Message):
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
         reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
+        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ🙁 \nChannel 1 - https://t.me/+SwZARPAas7AwZjNl \nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1 \nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9", reply_markup=reply_markup)
         return
 
     valid_domains = [
