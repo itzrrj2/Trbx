@@ -56,7 +56,7 @@ async def start_command(client, message):
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
     developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="t.me/terABoxTer_Instagrambot")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-    video_file_id = "/app/Jet-Mirror.mp4"
+    video_file_id = "/app/1734351426786003.mov"
     if os.path.exists(video_file_id):
         await client.send_video(
             chat_id=message.chat.id,
@@ -90,7 +90,7 @@ async def handle_message(client, message: Message):
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
-        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
         reply_markup = InlineKeyboardMarkup([[join_button]])
         await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.\nChannel 1 - https://t.me/+SwZARPAas7AwZjNl\nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1\nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9", reply_markup=reply_markup)
         return
