@@ -114,7 +114,56 @@ async def handle_message(client, message: Message):
         await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
     except Exception as e:
         logging.error(f"Error handling message: {e}")
-        await reply_msg.edit_text("Api has given a Broken Download Link. Dont Contact the Owner for this Issue.")
+        await reply_msg.edit_text("wait....")
+is_member = await is_user_member(client, user_id)
+
+    if not is_member:
+        join_button = InlineKeyboardButton("Join ❤️🚀", url="https://t.me/Xstream_links2")
+        reply_markup = InlineKeyboardMarkup([[join_button]])
+        await message.reply_text("✳️ To keep things secure and make sure only real users are accessing the bot, please subscribe to the channel below first.", reply_markup=reply_markup)
+        return
+
+    links = extract_links(message.text)
+    
+    if not links:
+        await message.reply_text("Please send a valid link.")
+        return
+
+    for terabox_link in links:
+        if not is_terabox_link(terabox_link):
+            await message.reply_text(f"{terabox_link} is not a valid Terabox link.")
+            continue
+            
+    reply_msg = await message.reply_text("🔄 Retrieving your TeraBox video your content is on the way, just a moment!")
+
+    try:
+        file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, user_mention, user_id)
+        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
+    except Exception as e:
+        logging.error(f"Error handling message: {e}")
+        await handle_video_download_failure(reply_msg, terabox_link)
+
+async def handle_video_download_failure(reply_msg, url):
+    """Handle cases when API request fails by showing a 'Watch Online' button."""
+    watch_online_button = InlineKeyboardButton(
+        "📺CLICK TO WATCH 1", 
+        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/api2.html?url={url}")
+    )
+
+    watch_online_2 = InlineKeyboardButton(
+        "📺CLICK TO WATCH 2", 
+        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/?url={url}")
+    )
+    
+    reply_markup = InlineKeyboardMarkup([
+        [watch_online_button],  # Button 1 in the first row
+        [watch_online_2]   # Button 2 in the second row
+    ])
+    await reply_msg.edit_text(
+        " **YOUR VIDEO IS READY TO WATCH!**\n\n"
+        "LINK TO WATCH YOUR VIDEO⬇️:",
+        reply_markup=reply_markup
+    )
 
 if __name__ == "__main__":
     keep_alive()
