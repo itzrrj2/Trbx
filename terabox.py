@@ -119,19 +119,19 @@ async def handle_message(client, message: Message):
 async def handle_video_download_failure(reply_msg, url):
     """Provide a fallback option to watch the video online."""
     watch_online_button_1 = InlineKeyboardButton(
-        "📺 CLICK TO WATCH (Option 1)", 
-        url=f"https://terabox-watch.netlify.app/api2.html?url={url}"
+        "⚡️WATCH ONLINE 1📱", 
+        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/api2.html?url={url}")
     )
     watch_online_button_2 = InlineKeyboardButton(
-        "📺 CLICK TO WATCH (Option 2)", 
-        url=f"https://terabox-watch.netlify.app/?url={url}"
+        "⚡️WATCH ONLINE 2📱", 
+        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/api2.html?url={url}")
     )
     reply_markup = InlineKeyboardMarkup([
         [watch_online_button_1],
         [watch_online_button_2]
     ])
     await reply_msg.edit_text(
-        "❌ Unable to download your video. You can watch it online using the options below:",
+        "YOUR VIDEO IS READY❗️\nCLICK ON ANY OPTION BELOW TO WATCH👇👇👇",
         reply_markup=reply_markup
     )
 
