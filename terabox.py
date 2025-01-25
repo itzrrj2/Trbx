@@ -1,12 +1,13 @@
-import re 
-import logging
-import asyncio
-import os
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
-from pyrogram.errors import FloodWait
+import logging
+import asyncio
+from datetime import datetime
+from pyrogram.enums import ChatMemberStatus
 from dotenv import load_dotenv
 from os import environ
+import os
+import time
 from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
@@ -29,7 +30,6 @@ bot_token = os.environ.get('BOT_TOKEN', '')
 if len(bot_token) == 0:
     logging.error("BOT_TOKEN variable is missing! Exiting now")
     exit(1)
-
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
 if len(dump_id) == 0:
     logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
@@ -53,10 +53,10 @@ async def start_command(client, message):
     await sticker_message.delete()
     user_mention = message.from_user.mention
     reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
-    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="t.me/terABoxTer_Instagrambot")
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="https://t.me/hrishikesh2861")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-    video_file_id = os.path.join(os.getcwd(), "1734351426786003.mov")
+    video_file_id = "/app/Jet-Mirror.mp4"
     if os.path.exists(video_file_id):
         await client.send_video(
             chat_id=message.chat.id,
@@ -70,7 +70,11 @@ async def start_command(client, message):
 async def is_user_member(client, user_id):
     try:
         member = await client.get_chat_member(fsub_id, user_id)
-        return member.status in ["member", "administrator", "owner"]
+        logging.info(f"User {user_id} membership status: {member.status}")
+        if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+            return True
+        else:
+            return False
     except Exception as e:
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
@@ -78,6 +82,7 @@ async def is_user_member(client, user_id):
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
+        logging.error("Message does not contain user information.")
         return
 
     user_id = message.from_user.id
@@ -85,15 +90,15 @@ async def handle_message(client, message: Message):
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
-        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
         reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.\nChannel 1 - https://t.me/+SwZARPAas7AwZjNl\nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1\nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9", reply_markup=reply_markup)
+        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
         return
 
     valid_domains = [
-        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
-        'momerybox.com', 'teraboxapp.com', '1024tera.com', 
-        'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
+    'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
+    'momerybox.com', 'teraboxapp.com', '1024tera.com', 
+    'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
     ]
 
     terabox_link = message.text.strip()
@@ -103,7 +108,7 @@ async def handle_message(client, message: Message):
         return
 
     reply_msg = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
-
+    
     try:
         file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, user_mention, user_id)
         await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
