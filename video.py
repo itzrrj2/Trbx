@@ -24,7 +24,7 @@ aria2.set_global_options(options)
 
 
 async def download_video(url, reply_msg, user_mention, user_id):
-    response = requests.get(f"https://ashlynn.serv00.net/terapre.php/?url={url}")
+    response = requests.get(f"https://ashlynn.serv00.net/pre.php/?url={url}")
     response.raise_for_status()
     data = response.json()
 
@@ -77,7 +77,8 @@ async def download_video(url, reply_msg, user_mention, user_id):
         logging.error(f"Error handling message: {e}")
         buttons = [
             [InlineKeyboardButton("🚀 HD Video", url=hd_download_link)],
-            [InlineKeyboardButton("⚡ Fast Download", url=fast_download_link)]
+            [InlineKeyboardButton("⚡ Fast Download", url=fast_download_link)],
+            [InlineKeyboardButton("📺 Wᴀᴛᴄʜ Oɴʟɪɴᴇ", web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/?url={url}"))]
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await reply_msg.reply_text(
@@ -175,7 +176,7 @@ async def upload_video(client, file_path, thumbnail_path, video_title, reply_msg
         collection_message = await client.send_video(
             chat_id=collection_channel_id,
             video=file,
-            caption=f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 ᴜsᴇʀ ʟɪɴᴋ: tg://user?id={user_id}",
+            caption=f"✨ ᴛɪᴛʟᴇ: {video_title}\n👤 ᴅᴏᴡɴʟᴏᴀᴅᴇᴅ ʙʏ: {user_mention}\n📥 ᴜsᴇʀ ʟɪɴᴋ: tg://openmessage?user_id={user_id}",
             thumb=thumbnail_path,
             progress=progress
         )
@@ -188,7 +189,7 @@ async def upload_video(client, file_path, thumbnail_path, video_title, reply_msg
         await message.delete()
 
     await reply_msg.delete()
-    sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
+    sticker_message = await message.reply_sticker("CAACAgUAAxkBAAKAEWcBqlNKFe0wAuORDYIlEXotOTuRAALhAQACrb-BNke3w36Xb2zoNgQ")
     os.remove(file_path)
     os.remove(thumbnail_path)
     await asyncio.sleep(5)
