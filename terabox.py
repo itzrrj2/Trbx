@@ -117,19 +117,7 @@ async def handle_message(client, message: Message):
         await reply_msg.edit_text("wait....")
 is_member = await is_user_member(client, user_id)
 
-    links = extract_links(message.text)
     
-    if not links:
-        await message.reply_text("Please send a valid link.")
-        return
-
-    for terabox_link in links:
-        if not is_terabox_link(terabox_link):
-            await message.reply_text(f"{terabox_link} is not a valid Terabox link.")
-            continue
-            
-    reply_msg = await message.reply_text("🔄 Retrieving your TeraBox video your content is on the way, just a moment!")
-
     try:
         file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, user_mention, user_id)
         await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
