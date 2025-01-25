@@ -15,43 +15,51 @@ from pyrogram.types import WebAppInfo
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
-mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority')
+mongo_url = "mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority"  # Change with your MongoDB URL
 client = MongoClient(mongo_url)
-db = client['cphdlust']
-users_collection = db['users']
-load_dotenv('config.env', override=True)
+db = client["cphdlust"]
+users_collection = db["users"]
 
-@app.on_message(filters.command('broadcast') & filters.user(ADMINS))
+async def save_user(user_id):
+    """Save user ID to the database if not already present."""
+    if not users_collection.find_one({"user_id": user_id}):
+        users_collection.insert_one({"user_id": user_id})
+        logging.info(f"Added new user with ID {user_id} to the database.")
+    else:
+        logging.info(f"User with ID {user_id} already exists in the database.")
+
+# Client Setup
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+@app.on_message(filters.command("broadcast") & filters.user(ADMINS))  # Only admins can use the broadcast command
 async def broadcast_command(client, message):
+    # Check if the message is a reply
     if message.reply_to_message:
-        query = await full_userbase()
-        broadcast_msg = message.reply_to_message
+        broadcast_msg = message.reply_to_message  # Get the message to broadcast
         total = 0
         successful = 0
         blocked = 0
         deleted = 0
         unsuccessful = 0
         
-        pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
-        for chat_id in query:
+        # Get all users from the database
+        users = users_collection.find()
+
+        pls_wait = await message.reply("<i>Broadcasting Message.. This may take some time</i>")
+
+        for user in users:
+            user_id = user["user_id"]
             try:
-                await broadcast_msg.copy(chat_id)
+                # Send the message to each user
+                await broadcast_msg.copy(user_id)
                 successful += 1
-            except FloodWait as e:
-                await asyncio.sleep(e.x)
-                await broadcast_msg.copy(chat_id)
-                successful += 1
-            except UserIsBlocked:
-                await del_user(chat_id)
-                blocked += 1
-            except InputUserDeactivated:
-                await del_user(chat_id)
-                deleted += 1
-            except:
+            except Exception as e:
+                logging.error(f"Failed to send message to {user_id}: {e}")
                 unsuccessful += 1
-                pass
+
             total += 1
-        
+
+        # Show broadcast status
         status = f"""<b><u>Broadcast Completed</u></b>
 
 Total Users: <code>{total}</code>
@@ -65,18 +73,9 @@ Unsuccessful: <code>{unsuccessful}</code>"""
         msg = await message.reply("Please reply to a message to broadcast it.")
         await asyncio.sleep(8)
         await msg.delete()
-def save_user(user_id, username):
-    try:
-        existing_user = users_collection.find_one({'user_id': user_id})
-        if existing_user is None:
-            users_collection.insert_one({'user_id': user_id, 'username': username})
-            logging.info(f"Saved new user {username} with ID {user_id} to the database.")
-        else:
-            users_collection.update_one({'user_id': user_id}, {'$set': {'username': username}})
-            logging.info(f"Updated user {username} with ID {user_id} in the database.")
-    except DuplicateKeyError as e:
-        logging.error(f"DuplicateKeyError: {e}")
 
+if __name__ == "__main__":
+    app.run()
 logging.basicConfig(level=logging.INFO)
 
 api_id = os.environ.get('TELEGRAM_API', '')
