@@ -51,9 +51,9 @@ async def start_command(client, message):
     await asyncio.sleep(2)
     await sticker_message.delete()
     user_mention = message.from_user.mention
-    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ.\n SEND ME LINK TO DOWNLOAD"
+    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ."
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
-    developer_button = InlineKeyboardButton("FREE BOT ⚡️", url="t.me/terABoxTer_Instagrambot")
+    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="t.me/terABoxTer_Instagrambot")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
     video_file_id = "/app/1734351426786003.mov"
@@ -75,7 +75,7 @@ async def is_user_member(client, user_id):
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
 
-# Handle incoming text messages
+# Handle incoming text messages (For normal users and /broadcast command)
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
@@ -84,6 +84,7 @@ async def handle_message(client, message: Message):
 
     # Skip /broadcast command processing here
     if message.text.startswith("/broadcast"):
+        logging.info(f"Skipping /broadcast command from {message.from_user.id}")
         return  # Do nothing if it's a broadcast command
 
     user_id = message.from_user.id
