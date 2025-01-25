@@ -42,6 +42,19 @@ else:
     print("ADMINS variable is missing or empty.")
     admins = []  # Provide a fallback or raise an exception
 
+load_dotenv('config.env')  # Ensure this is the correct path to your .env file
+
+# Retrieve the environment variables
+api_id = os.getenv('TELEGRAM_API')
+api_hash = os.getenv('TELEGRAM_HASH')
+bot_token = os.getenv('BOT_TOKEN')
+fsub_id = os.getenv('FSUB_ID')
+dump_chat_id = os.getenv('DUMP_CHAT_ID')
+admins_str = os.getenv('ADMINS')
+
+# Check if the necessary environment variables are loaded
+if not api_id or not api_hash or not bot_token:
+    raise ValueError("Missing one or more required environment variables: TELEGRAM_API, TELEGRAM_HASH, BOT_TOKEN")
 
 api_id = os.environ.get('TELEGRAM_API','')
 if len(api_id) == 0:
