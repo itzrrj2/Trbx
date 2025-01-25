@@ -29,53 +29,7 @@ async def save_user(user_id):
         logging.info(f"User with ID {user_id} already exists in the database.")
 
 # Client Setup
-app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@app.on_message(filters.command("broadcast") & filters.user(ADMINS))  # Only admins can use the broadcast command
-async def broadcast_command(client, message):
-    # Check if the message is a reply
-    if message.reply_to_message:
-        broadcast_msg = message.reply_to_message  # Get the message to broadcast
-        total = 0
-        successful = 0
-        blocked = 0
-        deleted = 0
-        unsuccessful = 0
-        
-        # Get all users from the database
-        users = users_collection.find()
-
-        pls_wait = await message.reply("<i>Broadcasting Message.. This may take some time</i>")
-
-        for user in users:
-            user_id = user["user_id"]
-            try:
-                # Send the message to each user
-                await broadcast_msg.copy(user_id)
-                successful += 1
-            except Exception as e:
-                logging.error(f"Failed to send message to {user_id}: {e}")
-                unsuccessful += 1
-
-            total += 1
-
-        # Show broadcast status
-        status = f"""<b><u>Broadcast Completed</u></b>
-
-Total Users: <code>{total}</code>
-Successful: <code>{successful}</code>
-Blocked Users: <code>{blocked}</code>
-Deleted Accounts: <code>{deleted}</code>
-Unsuccessful: <code>{unsuccessful}</code>"""
-        
-        await pls_wait.edit(status)
-    else:
-        msg = await message.reply("Please reply to a message to broadcast it.")
-        await asyncio.sleep(8)
-        await msg.delete()
-
-if __name__ == "__main__":
-    app.run()
 logging.basicConfig(level=logging.INFO)
 admins = os.getenv('ADMINS').split(',')  # Split string into a list based on commas
 admins = [int(admin.strip()) for admin in admins]  # Convert to integers
@@ -198,6 +152,51 @@ async def handle_video_download_failure(reply_msg, url):
         "YOUR VIDEO IS READY❗️\nCLICK ON ANY OPTION BELOW TO WATCH👇👇👇",
         reply_markup=reply_markup
     )
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+@app.on_message(filters.command("broadcast") & filters.user(ADMINS))  # Only admins can use the broadcast command
+async def broadcast_command(client, message):
+    # Check if the message is a reply
+    if message.reply_to_message:
+        broadcast_msg = message.reply_to_message  # Get the message to broadcast
+        total = 0
+        successful = 0
+        blocked = 0
+        deleted = 0
+        unsuccessful = 0
+        
+        # Get all users from the database
+        users = users_collection.find()
+
+        pls_wait = await message.reply("<i>Broadcasting Message.. This may take some time</i>")
+
+        for user in users:
+            user_id = user["user_id"]
+            try:
+                # Send the message to each user
+                await broadcast_msg.copy(user_id)
+                successful += 1
+            except Exception as e:
+                logging.error(f"Failed to send message to {user_id}: {e}")
+                unsuccessful += 1
+
+            total += 1
+
+        # Show broadcast status
+        status = f"""<b><u>Broadcast Completed</u></b>
+
+Total Users: <code>{total}</code>
+Successful: <code>{successful}</code>
+Blocked Users: <code>{blocked}</code>
+Deleted Accounts: <code>{deleted}</code>
+Unsuccessful: <code>{unsuccessful}</code>"""
+        
+        await pls_wait.edit(status)
+    else:
+        msg = await message.reply("Please reply to a message to broadcast it.")
+        await asyncio.sleep(8)
+        await msg.delete()
+
 
 if __name__ == "__main__":
     keep_alive()
