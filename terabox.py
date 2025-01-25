@@ -51,9 +51,9 @@ async def start_command(client, message):
     await asyncio.sleep(2)
     await sticker_message.delete()
     user_mention = message.from_user.mention
-    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ."
+    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ.\n SEND ME LINK TO DOWNLOAD"
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
-    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="t.me/terABoxTer_Instagrambot")
+    developer_button = InlineKeyboardButton("FREE BOT ⚡️", url="t.me/terABoxTer_Instagrambot")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
     video_file_id = "/app/1734351426786003.mov"
@@ -67,7 +67,7 @@ async def is_user_member(client, user_id):
     try:
         member = await client.get_chat_member(fsub_id, user_id)
         logging.info(f"User {user_id} membership status: {member.status}")
-        if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+        if member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
             return True
         else:
             return False
@@ -81,6 +81,10 @@ async def handle_message(client, message: Message):
     if message.from_user is None:
         logging.error("Message does not contain user information.")
         return
+
+    # Skip /broadcast command processing here
+    if message.text.startswith("/broadcast"):
+        return  # Do nothing if it's a broadcast command
 
     user_id = message.from_user.id
     user_mention = message.from_user.mention
@@ -136,9 +140,10 @@ async def handle_video_download_failure(reply_msg, url):
 # Broadcast command (only accessible to admins)
 @app.on_message(filters.command("broadcast") & filters.user(admins))  # Only admins can use the broadcast command
 async def broadcast_command(client, message):
-    # Log to check if the command is being triggered
+    # Log the incoming /broadcast command
     logging.info(f"Received /broadcast command from user: {message.from_user.id}")
-    
+
+    # Ensure the command is a reply to a message
     if message.reply_to_message:
         logging.info(f"Message to broadcast: {message.reply_to_message.text}")  # Log the message to be broadcasted
         broadcast_msg = message.reply_to_message
