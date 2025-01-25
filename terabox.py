@@ -1,112 +1,68 @@
+from dotenv import load_dotenv
+import os
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo
 import logging
 import asyncio
-from datetime import datetime
-from pyrogram.enums import ChatMemberStatus
-from dotenv import load_dotenv
-from os import environ
-import os
-import time
-from status import format_progress_bar
-from video import download_video, upload_video
-from web import keep_alive
-from pyrogram.types import WebAppInfo
 from pymongo import MongoClient
-from dotenv import load_dotenv
+from pyrogram.enums import ChatMemberStatus
+from video import download_video, upload_video  # Assuming these are custom modules
+from web import keep_alive  # Assuming this is your keep-alive module
 
-mongo_url = "mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority"  # Change with your MongoDB URL
+# Load environment variables from .env file
+load_dotenv('config.env')  # Ensure this is the correct path to your .env file
+
+# MongoDB Setup
+mongo_url = "mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(mongo_url)
 db = client["cphdlust"]
 users_collection = db["users"]
 
-async def save_user(user_id):
-    """Save user ID to the database if not already present."""
-    if not users_collection.find_one({"user_id": user_id}):
-        users_collection.insert_one({"user_id": user_id})
-        logging.info(f"Added new user with ID {user_id} to the database.")
-    else:
-        logging.info(f"User with ID {user_id} already exists in the database.")
-
-# Client Setup
-
+# Logging setup
 logging.basicConfig(level=logging.INFO)
-admins_str = os.getenv('ADMINS')
 
-# Check if ADMINS is not None or empty
-if admins_str:
-    admins = admins_str.split(',')
-    admins = [int(admin.strip()) for admin in admins]  # Convert to integers
-    print(f"Admins: {admins}")
-else:
-    print("ADMINS variable is missing or empty.")
-    admins = []  # Provide a fallback or raise an exception
-
-load_dotenv('config.env')  # Ensure this is the correct path to your .env file
-
-# Retrieve the environment variables
+# Get the environment variables
 api_id = os.getenv('TELEGRAM_API')
 api_hash = os.getenv('TELEGRAM_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 fsub_id = os.getenv('FSUB_ID')
 dump_chat_id = os.getenv('DUMP_CHAT_ID')
-admins_str = os.getenv('ADMINS')
 
-# Check if the necessary environment variables are loaded
+# Get the ADMINS from the environment variable
+admins_str = os.getenv('ADMINS')
+if admins_str:
+    admins = [int(admin.strip()) for admin in admins_str.split(',')]  # Convert to integers
+    logging.info(f"Loaded Admins: {admins}")
+else:
+    logging.error("ADMINS variable is missing or empty.")
+    admins = []  # Provide a fallback or raise an exception
+
+# Ensure API credentials are set
 if not api_id or not api_hash or not bot_token:
     raise ValueError("Missing one or more required environment variables: TELEGRAM_API, TELEGRAM_HASH, BOT_TOKEN")
 
-api_id = os.environ.get('TELEGRAM_API','')
-if len(api_id) == 0:
-    logging.error("TELEGRAM_API variable is missing! Exiting now")
-    exit(1)
-
-api_hash = os.environ.get('TELEGRAM_HASH','')
-if len(api_hash) == 0:
-    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
-    exit(1)
-    
-bot_token = os.environ.get('BOT_TOKEN','')
-if len(bot_token) == 0:
-    logging.error("BOT_TOKEN variable is missing! Exiting now")
-    exit(1)
-dump_id = os.environ.get('DUMP_CHAT_ID','')
-if len(dump_id) == 0:
-    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    dump_id = int(dump_id)
-
-fsub_id = os.environ.get('FSUB_ID','')
-if len(fsub_id) == 0:
-    logging.error("FSUB_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    fsub_id = int(fsub_id)
-
+# Initialize the bot
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
+# Command to start the bot
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEYonplzwrczhVu3I6HqPBzro3L2JU6YAACvAUAAj-VzAoTSKpoG9FPRjQE")
     await asyncio.sleep(2)
     await sticker_message.delete()
     user_mention = message.from_user.mention
-    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
+    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ."
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
     developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="t.me/terABoxTer_Instagrambot")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
+
     video_file_id = "/app/1734351426786003.mov"
     if os.path.exists(video_file_id):
-        await client.send_video(
-            chat_id=message.chat.id,
-            video=video_file_id,
-            caption=reply_message,
-            reply_markup=reply_markup
-        )
+        await client.send_video(chat_id=message.chat.id, video=video_file_id, caption=reply_message, reply_markup=reply_markup)
     else:
         await message.reply_text(reply_message, reply_markup=reply_markup)
 
+# Function to check if the user is a member of the specified channel
 async def is_user_member(client, user_id):
     try:
         member = await client.get_chat_member(fsub_id, user_id)
@@ -119,6 +75,7 @@ async def is_user_member(client, user_id):
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
 
+# Handle incoming text messages
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
@@ -151,11 +108,12 @@ async def handle_message(client, message: Message):
     
     try:
         file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, user_mention, user_id)
-        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
+        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_chat_id, user_mention, user_id, message)
     except Exception as e:
         logging.error(f"Error handling message: {e}")
         await handle_video_download_failure(reply_msg, terabox_link)
 
+# Fallback for video download failure: Watch Online Option
 async def handle_video_download_failure(reply_msg, url):
     """Provide a fallback option to watch the video online."""
     watch_online_button_1 = InlineKeyboardButton(
@@ -174,20 +132,19 @@ async def handle_video_download_failure(reply_msg, url):
         "YOUR VIDEO IS READY❗️\nCLICK ON ANY OPTION BELOW TO WATCH👇👇👇",
         reply_markup=reply_markup
     )
-app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@app.on_message(filters.command("broadcast") & filters.user(ADMINS))  # Only admins can use the broadcast command
+# Broadcast command (only accessible to admins)
+@app.on_message(filters.command("broadcast") & filters.user(admins))  # Only admins can use the broadcast command
 async def broadcast_command(client, message):
-    # Check if the message is a reply
     if message.reply_to_message:
-        broadcast_msg = message.reply_to_message  # Get the message to broadcast
+        broadcast_msg = message.reply_to_message
         total = 0
         successful = 0
         blocked = 0
         deleted = 0
         unsuccessful = 0
-        
-        # Get all users from the database
+
+        # Get all users from the MongoDB collection
         users = users_collection.find()
 
         pls_wait = await message.reply("<i>Broadcasting Message.. This may take some time</i>")
@@ -195,7 +152,6 @@ async def broadcast_command(client, message):
         for user in users:
             user_id = user["user_id"]
             try:
-                # Send the message to each user
                 await broadcast_msg.copy(user_id)
                 successful += 1
             except Exception as e:
@@ -204,7 +160,7 @@ async def broadcast_command(client, message):
 
             total += 1
 
-        # Show broadcast status
+        # Broadcast status
         status = f"""<b><u>Broadcast Completed</u></b>
 
 Total Users: <code>{total}</code>
@@ -212,13 +168,12 @@ Successful: <code>{successful}</code>
 Blocked Users: <code>{blocked}</code>
 Deleted Accounts: <code>{deleted}</code>
 Unsuccessful: <code>{unsuccessful}</code>"""
-        
+
         await pls_wait.edit(status)
     else:
         msg = await message.reply("Please reply to a message to broadcast it.")
         await asyncio.sleep(8)
         await msg.delete()
-
 
 if __name__ == "__main__":
     keep_alive()
