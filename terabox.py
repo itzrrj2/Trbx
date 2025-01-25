@@ -31,8 +31,17 @@ async def save_user(user_id):
 # Client Setup
 
 logging.basicConfig(level=logging.INFO)
-admins = os.getenv('ADMINS').split(',')  # Split string into a list based on commas
-admins = [int(admin.strip()) for admin in admins]  # Convert to integers
+admins_str = os.getenv('ADMINS')
+
+# Check if ADMINS is not None or empty
+if admins_str:
+    admins = admins_str.split(',')
+    admins = [int(admin.strip()) for admin in admins]  # Convert to integers
+    print(f"Admins: {admins}")
+else:
+    print("ADMINS variable is missing or empty.")
+    admins = []  # Provide a fallback or raise an exception
+
 
 api_id = os.environ.get('TELEGRAM_API', '')
 if len(api_id) == 0:
