@@ -77,6 +77,8 @@ Unsuccessful: <code>{unsuccessful}</code>"""
 if __name__ == "__main__":
     app.run()
 logging.basicConfig(level=logging.INFO)
+admins = os.getenv('ADMINS').split(',')  # Split string into a list based on commas
+admins = [int(admin.strip()) for admin in admins]  # Convert to integers
 
 api_id = os.environ.get('TELEGRAM_API', '')
 if len(api_id) == 0:
