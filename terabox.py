@@ -25,11 +25,11 @@ logging.basicConfig(level=logging.INFO)
 api_id = os.getenv('TELEGRAM_API')
 api_hash = os.getenv('TELEGRAM_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-fsub_id = os.getenv('FSUB_ID')
-dump_chat_id = os.getenv('DUMP_CHAT_ID')
+fsub_id = os.getenv('FSUB_ID')  # Channel to check if users are members
+dump_chat_id = os.getenv('DUMP_CHAT_ID')  # This is where you want to send media or logs
+admins_str = os.getenv('ADMINS')
 
 # Get the ADMINS from the environment variable
-admins_str = os.getenv('ADMINS')
 if admins_str:
     admins = [int(admin.strip()) for admin in admins_str.split(',')]  # Convert to integers
     logging.info(f"Loaded Admins: {admins}")
@@ -65,9 +65,12 @@ async def start_command(client, message):
 # Function to check if the user is a member of the specified channel
 async def is_user_member(client, user_id):
     try:
+        # Check if the user is a member of the required channel
         member = await client.get_chat_member(fsub_id, user_id)
         logging.info(f"User {user_id} membership status: {member.status}")
-        if member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+        
+        # Return True if user is either an admin, owner, or member
+        if member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER, ChatMemberStatus.MEMBER]:
             return True
         else:
             return False
@@ -89,18 +92,23 @@ async def handle_message(client, message: Message):
 
     user_id = message.from_user.id
     user_mention = message.from_user.mention
+
+    # Check if the user is a member of the required channel
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
         reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.\nChannel 1 - https://t.me/+SwZARPAas7AwZjNl\nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1\nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9", reply_markup=reply_markup)
+        await message.reply_text(
+            "ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.\nChannel 1 - https://t.me/+SwZARPAas7AwZjNl\nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1\nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9",
+            reply_markup=reply_markup,
+        )
         return
 
     valid_domains = [
-    'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
-    'momerybox.com', 'teraboxapp.com', '1024tera.com', 
-    'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
+        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com',
+        'momerybox.com', 'teraboxapp.com', '1024tera.com',
+        'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
     ]
 
     terabox_link = message.text.strip()
