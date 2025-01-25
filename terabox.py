@@ -2,105 +2,124 @@ import re
 import logging
 import asyncio
 import os
-from pymongo import MongoClient
-from dotenv import load_dotenv
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
-from status import format_progress_bar  # Assuming this is a custom module
-from video import download_video, upload_video  # Assuming these are custom modules
-from database.database import present_user, add_user, full_userbase, del_user  # Assuming these are custom modules
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.errors import FloodWait
+from dotenv import load_dotenv
+from os import environ
+from status import format_progress_bar
+from video import download_video, upload_video
 from web import keep_alive
-from config import *
 
 load_dotenv('config.env', override=True)
 
 logging.basicConfig(level=logging.INFO)
 
-ADMINS = list(map(int, os.environ.get('ADMINS', '7064434873').split()))
 api_id = os.environ.get('TELEGRAM_API', '')
+if len(api_id) == 0:
+    logging.error("TELEGRAM_API variable is missing! Exiting now")
+    exit(1)
+
 api_hash = os.environ.get('TELEGRAM_HASH', '')
+if len(api_hash) == 0:
+    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
+    exit(1)
+    
 bot_token = os.environ.get('BOT_TOKEN', '')
-dump_id = int(os.environ.get('DUMP_CHAT_ID', ''))
-fsub_id = int(os.environ.get('FSUB_ID', ''))
+if len(bot_token) == 0:
+    logging.error("BOT_TOKEN variable is missing! Exiting now")
+    exit(1)
 
-mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority')
-client = MongoClient(mongo_url)
-db = client['cphdlust']
-users_collection = db['users']
+dump_id = os.environ.get('DUMP_CHAT_ID', '')
+if len(dump_id) == 0:
+    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
+    exit(1)
+else:
+    dump_id = int(dump_id)
 
-def extract_links(text):
-    url_pattern = r'(https?://[^\s]+)'  # Regex to capture http/https URLs
-    return re.findall(url_pattern, text)
+fsub_id = os.environ.get('FSUB_ID', '')
+if len(fsub_id) == 0:
+    logging.error("FSUB_ID variable is missing! Exiting now")
+    exit(1)
+else:
+    fsub_id = int(fsub_id)
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
-    user_id = message.from_user.id
+    sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEYonplzwrczhVu3I6HqPBzro3L2JU6YAACvAUAAj-VzAoTSKpoG9FPRjQE")
+    await asyncio.sleep(2)
+    await sticker_message.delete()
     user_mention = message.from_user.mention
-
-    if not await present_user(user_id):
-        try:
-            await add_user(user_id)
-            logging.info(f"Added user {user_id} to the database")
-        except Exception as e:
-            logging.error(f"Failed to add user {user_id} to the database: {e}")
-
-    reply_message = (
-        f"🌟 Welcome to the Ultimate TeraBox Downloader Bot, {user_mention}!\n\n"
-        "🚀 **Why Choose This Bot?**\n"
-        "- **Unmatched Speed**: Experience the fastest and most powerful TeraBox downloader on Telegram. ⚡\n"
-        "- **100% Free Forever**: No hidden fees or subscriptions—completely free for everyone! 🆓\n"
-        "- **Seamless Downloads**: Easily download TeraBox files and have them sent directly to you. 🎥📁\n"
-        "- **24/7 Availability**: Access the bot anytime, anywhere, without downtime. ⏰\n\n"
-        "🎯 **How It Works**\n"
-        "Simply send a TeraBox link, and let the bot handle the rest. It's quick, easy, and reliable! 🚀\n\n"
-        "💎 **Your Ultimate Telegram Tool**—crafted to make your experience effortless and enjoyable.\n\n"
-        "Join our growing community to discover more features and stay updated! 👇"
-    )
-    join_button = InlineKeyboardButton("Join ❤️🚀", url="https://t.me/Xstream_links2")
-    developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/Xstream_Links2")
+    reply_message = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="https://t.me/hrishikesh2861")
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-    await message.reply_text(reply_message, reply_markup=reply_markup)
+    video_file_id = os.path.join(os.getcwd(), "Jet-Mirror.mp4")
+    if os.path.exists(video_file_id):
+        await client.send_video(
+            chat_id=message.chat.id,
+            video=video_file_id,
+            caption=reply_message,
+            reply_markup=reply_markup
+        )
+    else:
+        await message.reply_text(reply_message, reply_markup=reply_markup)
+
+async def is_user_member(client, user_id):
+    try:
+        member = await client.get_chat_member(fsub_id, user_id)
+        return member.status in ["member", "administrator", "owner"]
+    except Exception as e:
+        logging.error(f"Error checking membership status for user {user_id}: {e}")
+        return False
 
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
-    user_id = message.from_user.id
-    if not await present_user(user_id):
-        try:
-            await add_user(user_id)
-        except Exception as e:
-            logging.error(f"Failed to add user {user_id} to the database: {e}")
-
-    links = extract_links(message.text)
-    if not links:
-        await message.reply_text("Please send a valid link.")
+    if message.from_user is None:
         return
 
-    for terabox_link in links:
-        if not "terabox" in terabox_link.lower():
-            await message.reply_text(f"{terabox_link} is not a valid Terabox link.")
-            continue
-            
-        reply_msg = await message.reply_text("🔄 Retrieving your TeraBox video. Please wait...")
+    user_id = message.from_user.id
+    user_mention = message.from_user.mention
+    is_member = await is_user_member(client, user_id)
 
-        try:
-            file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, message.from_user.mention, user_id)
-            await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, message.from_user.mention, user_id, message)
-        except Exception as e:
-            logging.error(f"Error handling message: {e}")
-            await handle_video_download_failure(reply_msg, terabox_link)
+    if not is_member:
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+        reply_markup = InlineKeyboardMarkup([[join_button]])
+        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
+        return
+
+    valid_domains = [
+        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
+        'momerybox.com', 'teraboxapp.com', '1024tera.com', 
+        'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
+    ]
+
+    terabox_link = message.text.strip()
+
+    if not any(domain in terabox_link for domain in valid_domains):
+        await message.reply_text("ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴠᴀʟɪᴅ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ.")
+        return
+
+    reply_msg = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
+
+    try:
+        file_path, thumbnail_path, video_title = await download_video(terabox_link, reply_msg, user_mention, user_id)
+        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, dump_id, user_mention, user_id, message)
+    except Exception as e:
+        logging.error(f"Error handling message: {e}")
+        await handle_video_download_failure(reply_msg, terabox_link)
 
 async def handle_video_download_failure(reply_msg, url):
-    """Handle cases when video download fails by showing a 'Watch Online' option."""
+    """Provide a fallback option to watch the video online."""
     watch_online_button_1 = InlineKeyboardButton(
         "📺 CLICK TO WATCH (Option 1)", 
-        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/api2.html?url={url}")
+        url=f"https://terabox-watch.netlify.app/api2.html?url={url}"
     )
     watch_online_button_2 = InlineKeyboardButton(
         "📺 CLICK TO WATCH (Option 2)", 
-        web_app=WebAppInfo(url=f"https://terabox-watch.netlify.app/?url={url}")
+        url=f"https://terabox-watch.netlify.app/?url={url}"
     )
     reply_markup = InlineKeyboardMarkup([
         [watch_online_button_1],
