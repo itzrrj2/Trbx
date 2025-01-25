@@ -37,7 +37,7 @@ if len(dump_id) == 0:
 else:
     dump_id = int(dump_id)
 
-fsub_id = os.environ.get('FSUB_ID', '')
+fsub_id = os.environ.get('FSUB_ID', '-1002294570357')
 if len(fsub_id) == 0:
     logging.error("FSUB_ID variable is missing! Exiting now")
     exit(1)
@@ -87,7 +87,7 @@ async def handle_message(client, message: Message):
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/Xstream_links2")
         reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
+        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.\nChannel 1 - https://t.me/+SwZARPAas7AwZjNl\nChannel 2 - https://t.me/+Q720C5GA9oRlNDg1\nChannel 3 - https://t.me/+QjM9OMbg4rU3ODc9", reply_markup=reply_markup)
         return
 
     valid_domains = [
