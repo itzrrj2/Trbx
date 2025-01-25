@@ -37,7 +37,7 @@ if len(dump_id) == 0:
 else:
     dump_id = int(dump_id)
 
-fsub_id = os.environ.get('FSUB_ID', '-1002294570357')
+fsub_id = os.environ.get('FSUB_ID', '')
 if len(fsub_id) == 0:
     logging.error("FSUB_ID variable is missing! Exiting now")
     exit(1)
