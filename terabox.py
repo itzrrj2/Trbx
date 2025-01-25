@@ -12,9 +12,70 @@ from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
 from pyrogram.types import WebAppInfo
+from pymongo import MongoClient
+from dotenv import load_dotenv
 
-
+mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://cphdlust:cphdlust@cphdlust.ydeyw.mongodb.net/?retryWrites=true&w=majority')
+client = MongoClient(mongo_url)
+db = client['cphdlust']
+users_collection = db['users']
 load_dotenv('config.env', override=True)
+
+@app.on_message(filters.command('broadcast') & filters.user(ADMINS))
+async def broadcast_command(client, message):
+    if message.reply_to_message:
+        query = await full_userbase()
+        broadcast_msg = message.reply_to_message
+        total = 0
+        successful = 0
+        blocked = 0
+        deleted = 0
+        unsuccessful = 0
+        
+        pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
+        for chat_id in query:
+            try:
+                await broadcast_msg.copy(chat_id)
+                successful += 1
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                await broadcast_msg.copy(chat_id)
+                successful += 1
+            except UserIsBlocked:
+                await del_user(chat_id)
+                blocked += 1
+            except InputUserDeactivated:
+                await del_user(chat_id)
+                deleted += 1
+            except:
+                unsuccessful += 1
+                pass
+            total += 1
+        
+        status = f"""<b><u>Broadcast Completed</u></b>
+
+Total Users: <code>{total}</code>
+Successful: <code>{successful}</code>
+Blocked Users: <code>{blocked}</code>
+Deleted Accounts: <code>{deleted}</code>
+Unsuccessful: <code>{unsuccessful}</code>"""
+        
+        await pls_wait.edit(status)
+    else:
+        msg = await message.reply("Please reply to a message to broadcast it.")
+        await asyncio.sleep(8)
+        await msg.delete()
+def save_user(user_id, username):
+    try:
+        existing_user = users_collection.find_one({'user_id': user_id})
+        if existing_user is None:
+            users_collection.insert_one({'user_id': user_id, 'username': username})
+            logging.info(f"Saved new user {username} with ID {user_id} to the database.")
+        else:
+            users_collection.update_one({'user_id': user_id}, {'$set': {'username': username}})
+            logging.info(f"Updated user {username} with ID {user_id} in the database.")
+    except DuplicateKeyError as e:
+        logging.error(f"DuplicateKeyError: {e}")
 
 logging.basicConfig(level=logging.INFO)
 
