@@ -117,12 +117,6 @@ async def handle_message(client, message: Message):
         await reply_msg.edit_text("wait....")
 is_member = await is_user_member(client, user_id)
 
-    if not is_member:
-        join_button = InlineKeyboardButton("Join ❤️🚀", url="https://t.me/Xstream_links2")
-        reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("✳️ To keep things secure and make sure only real users are accessing the bot, please subscribe to the channel below first.", reply_markup=reply_markup)
-        return
-
     links = extract_links(message.text)
     
     if not links:
