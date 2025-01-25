@@ -136,7 +136,11 @@ async def handle_video_download_failure(reply_msg, url):
 # Broadcast command (only accessible to admins)
 @app.on_message(filters.command("broadcast") & filters.user(admins))  # Only admins can use the broadcast command
 async def broadcast_command(client, message):
+    # Log to check if the command is being triggered
+    logging.info(f"Received /broadcast command from user: {message.from_user.id}")
+    
     if message.reply_to_message:
+        logging.info(f"Message to broadcast: {message.reply_to_message.text}")  # Log the message to be broadcasted
         broadcast_msg = message.reply_to_message
         total = 0
         successful = 0
